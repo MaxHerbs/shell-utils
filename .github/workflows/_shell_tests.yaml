@@ -15,6 +15,19 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Build executable
+      - name: Build Executable
         run: |
           cargo build --release
+          cargo build --release
+
+      - name: Add target/release to PATH
+        run: echo "${{ github.workspace }}/target/release" >> $GITHUB_PATH
+
+      - name: Check Symlinks
+        run: |
+          command_exists() {
+            read -r cmd
+            command -v "$cmd" >/dev/null 2>&1 || return 1
+          }
+          shell-utils --expand
+          ls ./src | grep module_ | split 1 -d _ | command_exists
