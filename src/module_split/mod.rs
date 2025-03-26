@@ -1,23 +1,33 @@
 use clap::Parser;
+use std::io::{self, Read};
 
+/// CLI tool to capture and display stdout of a command
 #[derive(Parser, Debug)]
-#[command(name = "Split", version = "1.0", about = "Split stdin by a delimeter")]
+#[command(
+    author = "Your Name",
+    version = "1.0",
+    about = "Splits stdout by a given delimeter and outputs target slice."
+)]
 struct Cli {
-    /// Dividing character
-    #[arg(short, long)]
-    divisor: Option<String>,
-}
+    /// Index of the item to return
+    index: usize,
 
-fn parse_args() -> Cli {
-    Cli::parse()
+    /// Number of lines to skip
+    #[arg(short, long, default_value = "0")]
+    skip: usize,
 }
 
 pub fn main() {
-    let args = parse_args();
+    let cli = Cli::parse();
 
-    println!("This is my split");
-    match &args.divisor {
-        Some(name) => println!("Hello, {}!", name),
-        None => println!("Hello, World!"),
-    }
+    let mut input = String::new();
+    io::stdin()
+        .read_to_string(&mut input)
+        .expect("Failed to read stdin");
+
+    input
+        .lines()
+        .skip(cli.skip)
+        .map(|line| line.split_whitespace().nth(cli.index).unwrap_or(""))
+        .for_each(|part| println!("{}", part));
 }
