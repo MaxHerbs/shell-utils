@@ -20,7 +20,10 @@ fn main() {
     let mut file = File::create(enabled_modules_path.with_extension("rs")).unwrap();
     file.write_all(templated_rust.as_bytes()).unwrap();
 
-    println!("cargo:warning={:?}", module_list);
+    println!("cargo:warning=Building for...");
+    module_list
+        .iter()
+        .for_each(|module| println!("cargo:warning={}", module));
 }
 
 fn create_module_list() -> Vec<String> {

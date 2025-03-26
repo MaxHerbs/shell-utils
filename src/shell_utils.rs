@@ -1,6 +1,8 @@
+use clap::builder::Str;
 use clap::Parser;
 use std::collections::HashMap;
 use std::env;
+use std::os::unix::fs;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -23,22 +25,27 @@ pub fn main(callables: HashMap<String, fn()>) {
     println!("This is my shell utils");
 
     if args.expand {
-        let listed_callables: Vec<&String> = callables.keys().collect();
-        println!("{:?}", listed_callables);
-        let calling_binary = env::current_exe().unwrap();
-        println!("{:?}", calling_binary);
+        let possible_callables: Vec<&String> = callables.keys().collect();
+        expand(&possible_callables);
     }
 }
 
-// fn drop_last<T>(list: &Vec<T>) -> Vec<T> {
-//     let mut iterator = list.iter().peekable();
-//     let mut returning_vec: Vec<T> = Vec::new();
-//
-//     while let Some(item) = iterator.next() {
-//         // Check if there's another element after the current one
-//         if iterator.peek().is_some() {
-//             returning_vec.push(&item);
-//         }
-//     }
-//     vec![]
-// }
+fn expand(possible_callables: &Vec<&String>) {
+    println!("{:?}", possible_callables);
+    let binary_path = env::current_exe().unwrap();
+    println!("{:?}", binary_path);
+
+    let mut calling_path = binary_path.clone();
+    calling_path.pop();
+
+    for callable in possible_callables {
+        let this_symlink = calling_path.join(callable);
+        match fs::symlink(&binary_path, &this_symlink) {
+            Ok(()) => println!("Created symlink for {} at {:?}", callable, this_symlink),
+            Err(error) => println!(
+                "Failed to create symlink for {} at {:?}: {}",
+                callable, this_symlink, error
+            ),
+        };
+    }
+}
