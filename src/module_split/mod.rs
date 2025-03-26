@@ -15,6 +15,10 @@ struct Cli {
     /// Number of lines to skip
     #[arg(short, long, default_value = "0")]
     skip: usize,
+
+    /// Specify the separating character
+    #[arg(short, long)]
+    divisor: Option<String>,
 }
 
 pub fn main() {
@@ -25,9 +29,15 @@ pub fn main() {
         .read_to_string(&mut input)
         .expect("Failed to read stdin");
 
+    let split_fn: Box<dyn Fn(&str) -> Option<&str>> = if let Some(divisor) = cli.divisor {
+        Box::new(move |line: &str| line.split(&divisor).nth(cli.index))
+    } else {
+        Box::new(move |line: &str| line.split_whitespace().nth(cli.index))
+    };
+
     input
         .lines()
         .skip(cli.skip)
-        .map(|line| line.split_whitespace().nth(cli.index).unwrap_or(""))
+        .filter_map(|line| split_fn(line))
         .for_each(|part| println!("{}", part));
 }
