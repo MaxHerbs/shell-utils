@@ -12,3 +12,8 @@ jobs:
   lint_rust:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     uses: ./.github/workflows/_lint_rust.yaml
+
+  shell-tests:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    needs: [lint_rust]
+    uses: ./.github/workflows/_shell_tests.yaml
