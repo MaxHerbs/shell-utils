@@ -15,6 +15,12 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Build executable
+      - name: Build Executable
         run: |
           cargo build --release
+
+      - name: Update Path
+        run: echo "PATH=$GITHUB_WORKSPACE/target/release:$PATH" >> $GITHUB_ENV
+
+      - name: Run Binary
+        run: shell-utils --expand
