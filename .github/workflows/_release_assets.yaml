@@ -1,0 +1,30 @@
+name: Upload Release Asset
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Build executable
+        run: |
+          rustup target add x86_64-unknown-linux-musl
+          cargo build --release --target x86_64-unknown-linux-musl
+          cargo build --release --target x86_64-unknown-linux-musl
+
+      - name: Zip executable
+        run: zip shell-utils ./target/x86_64-unknown-linux-musl/release/shell-utils --junk-paths
+
+      - name: Release shell-utils
+        uses: softprops/action-gh-release@v1
+        with:
+          files: shell-utils.zip

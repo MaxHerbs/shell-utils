@@ -1,0 +1,12 @@
+[package]
+name = "shell-utils"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+clap = { version = "4.0", features = ["derive"] }
+
+[build-dependencies]
+glob = "0.3.2"
+minijinja = "2.8.0"
