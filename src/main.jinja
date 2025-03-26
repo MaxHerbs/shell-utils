@@ -21,7 +21,6 @@ fn main() {
     } else {
         sys_call
     };
-    println!("{}", callable_name);
 
     match supported_modules.get(callable_name) {
         Some(callable) => callable(),
