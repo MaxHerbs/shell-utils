@@ -1,0 +1,30 @@
+use std::env;
+mod shell_utils;
+use std::collections::HashMap;
+
+{% for module in modules %}
+mod module_{{ module }};
+{% endfor %}
+
+fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    let mut supported_modules: HashMap<String, fn()> = HashMap::new();
+    {% for module in modules %}
+    supported_modules.insert("{{ module }}".to_string(), module_{{ module }}::main);
+    {% endfor %}
+
+    let sys_call = args.first().unwrap();
+
+    let callable_name = if sys_call.contains("/") {
+        sys_call.split("/").last().unwrap()
+    } else {
+        sys_call
+    };
+    println!("{}", callable_name);
+
+    match supported_modules.get(callable_name) {
+        Some(callable) => callable(),
+        None => shell_utils::main(supported_modules),
+    };
+}
