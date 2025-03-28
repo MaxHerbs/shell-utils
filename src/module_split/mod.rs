@@ -21,6 +21,20 @@ struct Cli {
     divisor: Option<String>,
 }
 
+fn process_input(input: &str, divisor: Option<&str>, index: usize, skip: usize) -> Vec<String> {
+    let split_fn: Box<dyn Fn(&str) -> Option<&str>> = if let Some(div) = divisor {
+        Box::new(move |line: &str| line.split(div).nth(index))
+    } else {
+        Box::new(move |line: &str| line.split_whitespace().nth(index))
+    };
+
+    input
+        .lines()
+        .skip(skip)
+        .filter_map(|line| split_fn(line).map(String::from))
+        .collect()
+}
+
 pub fn main() {
     let cli = Cli::parse();
 
@@ -29,17 +43,12 @@ pub fn main() {
         .read_to_string(&mut input)
         .expect("Failed to read stdin");
 
-    let split_fn: Box<dyn Fn(&str) -> Option<&str>> = if let Some(divisor) = cli.divisor {
-        Box::new(move |line: &str| line.split(&divisor).nth(cli.index))
-    } else {
-        Box::new(move |line: &str| line.split_whitespace().nth(cli.index))
-    };
+    let results = process_input(&input, cli.divisor.as_deref(), cli.index, cli.skip);
 
-    input
-        .lines()
-        .skip(cli.skip)
-        .filter_map(|line| split_fn(line))
-        .for_each(|part| println!("{}", part));
+    for part in results {
+        println!("{}", part);
+    }
+}
 
 #[cfg(test)]
 mod tests {
