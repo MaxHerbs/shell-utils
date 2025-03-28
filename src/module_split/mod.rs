@@ -40,4 +40,58 @@ pub fn main() {
         .skip(cli.skip)
         .filter_map(|line| split_fn(line))
         .for_each(|part| println!("{}", part));
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_process_input_whitespace() {
+        let input_str = "this is my test case";
+        let result = process_input(input_str, None, 1, 0);
+        assert_eq!(result, vec!["is"])
+    }
+
+    #[test]
+    fn test_specific_delimeter() {
+        let input_str = "this:is:my:test";
+        let result = process_input(input_str, Some(":"), 1, 0);
+        assert_eq!(result, vec!["is"])
+    }
+
+    #[test]
+    fn multiline_text() {
+        let input_str = "
+            this is my test
+            line two of my test
+            this is line three
+        ";
+        let result = process_input(input_str, None, 1, 0);
+        let solution = vec!["is", "two", "is"];
+        assert_eq!(result, solution)
+    }
+
+    #[test]
+    fn out_of_range() {
+        let input_str = "
+            this is my test
+            line two of my test
+            this is line three
+        ";
+        let result = process_input(input_str, None, 8, 0);
+        let solution: Vec<String> = vec![];
+        assert_eq!(result, solution)
+    }
+
+    #[test]
+    fn mismatched() {
+        let input_str = "
+            this is my test
+            two
+            1
+        ";
+        let result = process_input(input_str, None, 2, 0);
+        let solution: Vec<String> = vec!["my".to_owned()];
+        assert_eq!(result, solution)
+    }
 }
