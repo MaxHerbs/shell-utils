@@ -21,7 +21,6 @@ fn parse_args() -> Cli {
 
 pub fn main(callables: HashMap<String, fn()>) {
     let args = parse_args();
-    println!("This is my shell utils");
 
     if args.expand {
         let possible_callables: Vec<&String> = callables.keys().collect();
