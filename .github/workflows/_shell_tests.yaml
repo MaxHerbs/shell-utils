@@ -5,7 +5,14 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          - os: macos-latest
+            target: aarch64-apple-darwin
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout Code
@@ -14,14 +21,18 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: ${{ matrix.target }}
+
+      - name: Install musl tools
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       - name: Build Executable
         run: |
-          cargo build --release
-          cargo build --release
+          cargo build --release --target ${{ matrix.target }}
 
       - name: Add target/release to PATH
-        run: echo "${{ github.workspace }}/target/release" >> $GITHUB_PATH
+        run: echo "${{ github.workspace }}/target/${{ matrix.target }}/release" >> $GITHUB_PATH
 
       - name: Check Symlinks
         run: |
@@ -29,5 +40,5 @@ jobs:
             read -r cmd
             command -v "$cmd" >/dev/null 2>&1 || return 1
           }
-          shell-utils --expand
-          ls ./src | grep module_ | split 1 -d _ | command_exists
+          ./target/${{ matrix.target }}/release/shell-utils --expand
+          ls ./src | grep module_ | ./target/${{ matrix.target }}/release/split 1 -d _ | command_exists
