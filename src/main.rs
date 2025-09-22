@@ -2,20 +2,21 @@ use std::env;
 mod shell_utils;
 use std::collections::HashMap;
 
-{% for module in modules %}
-mod module_{{ module }};
-{% endfor %}
+mod module_collapse;
+
+mod module_split;
+
+mod module_unique;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
     let mut supported_modules: HashMap<String, fn()> = HashMap::new();
-    {% for module in modules %}
-    supported_modules.insert("{{ module }}".to_string(), module_{{ module }}::main);
-    {% endfor %}
+    supported_modules.insert("collapse".to_string(), module_collapse::main);
+    supported_modules.insert("split".to_string(), module_split::main);
+    supported_modules.insert("unique".to_string(), module_unique::main);
 
     let sys_call = args.first().unwrap();
-
     let callable_name = if sys_call.contains("/") {
         sys_call.split("/").last().unwrap()
     } else {

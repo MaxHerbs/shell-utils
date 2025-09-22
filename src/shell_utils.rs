@@ -40,9 +40,9 @@ fn expand(possible_callables: &Vec<&String>) {
         let this_symlink = calling_path.join(callable);
         match fs::symlink(&binary_path, &this_symlink) {
             Ok(()) => println!("Created symlink for {callable} at {this_symlink:?}"),
-            Err(error) => println!(
-                "Failed to create symlink for {callable} at {this_symlink:?}: {error}"
-            ),
+            Err(error) => {
+                println!("Failed to create symlink for {callable} at {this_symlink:?}: {error}")
+            }
         };
     }
 }

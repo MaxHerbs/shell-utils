@@ -23,12 +23,7 @@ struct Cli {
 
 type SplitFn<'a> = Box<dyn Fn(&str) -> Option<&str> + 'a>;
 
-fn process_input<'a>(
-    input: &str,
-    divisor: Option<&'a str>,
-    index: usize,
-    skip: usize,
-) -> String {
+fn process_input<'a>(input: &str, divisor: Option<&'a str>, index: usize, skip: usize) -> String {
     let split_fn: SplitFn<'a> = if let Some(div) = divisor {
         Box::new(move |line: &str| line.split(div).nth(index))
     } else {
@@ -106,7 +101,7 @@ mod tests {
             1
         ";
         let result = process_input(input_str, None, 2, 0);
-        let solution  = "my";
+        let solution = "my";
         assert_eq!(result, solution)
     }
 }
