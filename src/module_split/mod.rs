@@ -23,18 +23,24 @@ struct Cli {
 
 type SplitFn<'a> = Box<dyn Fn(&str) -> Option<&str> + 'a>;
 
-fn process_input<'a>(input: &str, divisor: Option<&'a str>, index: usize, skip: usize) -> Vec<String> {
+fn process_input<'a>(
+    input: &str,
+    divisor: Option<&'a str>,
+    index: usize,
+    skip: usize,
+) -> String {
     let split_fn: SplitFn<'a> = if let Some(div) = divisor {
         Box::new(move |line: &str| line.split(div).nth(index))
     } else {
         Box::new(move |line: &str| line.split_whitespace().nth(index))
     };
 
-    input
+    let parts: Vec<String> = input
         .lines()
         .skip(skip)
         .filter_map(|line| split_fn(line).map(String::from))
-        .collect()
+        .collect();
+    parts.join("\n")
 }
 
 pub fn main() {
@@ -47,9 +53,7 @@ pub fn main() {
 
     let results = process_input(&input, cli.divisor.as_deref(), cli.index, cli.skip);
 
-    for part in results {
-        println!("{part}");
-    }
+    println!("{results}");
 }
 
 #[cfg(test)]
@@ -60,14 +64,14 @@ mod tests {
     fn test_process_input_whitespace() {
         let input_str = "this is my test case";
         let result = process_input(input_str, None, 1, 0);
-        assert_eq!(result, vec!["is"])
+        assert_eq!(result, "is")
     }
 
     #[test]
     fn test_specific_delimeter() {
         let input_str = "this:is:my:test";
         let result = process_input(input_str, Some(":"), 1, 0);
-        assert_eq!(result, vec!["is"])
+        assert_eq!(result, "is")
     }
 
     #[test]
@@ -78,7 +82,7 @@ mod tests {
             this is line three
         ";
         let result = process_input(input_str, None, 1, 0);
-        let solution = vec!["is", "two", "is"];
+        let solution = "is\ntwo\nis";
         assert_eq!(result, solution)
     }
 
@@ -90,7 +94,7 @@ mod tests {
             this is line three
         ";
         let result = process_input(input_str, None, 8, 0);
-        let solution: Vec<String> = vec![];
+        let solution = "";
         assert_eq!(result, solution)
     }
 
@@ -102,7 +106,7 @@ mod tests {
             1
         ";
         let result = process_input(input_str, None, 2, 0);
-        let solution: Vec<String> = vec!["my".to_owned()];
+        let solution  = "my";
         assert_eq!(result, solution)
     }
 }
